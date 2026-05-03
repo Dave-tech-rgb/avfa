@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import models
 from database import engine, Base
-from routers import auth, devices, users, audit_logs
+from routers import auth, devices, users, audit_logs, detection
 
 Base.metadata.create_all(bind=engine)
 
@@ -20,6 +20,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(devices.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(audit_logs.router, prefix="/api")
+app.include_router(detection.router, prefix="/api")
 
 @app.get("/")
 def read_root():

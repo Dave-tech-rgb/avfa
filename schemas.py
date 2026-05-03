@@ -43,3 +43,17 @@ class AuditLog(AuditLogBase):
 class UserLogin(BaseModel):
     email: str
     password: str
+
+class DetectionSessionCreate(BaseModel):
+    user_id: Optional[int] = None
+    car_count: int = 0
+    truck_count: int = 0
+    bus_count: int = 0
+    motorcycle_count: int = 0
+    average_confidence: float = 0.0
+
+class DetectionSessionResponse(DetectionSessionCreate):
+    id: int
+    video_url: Optional[str] = None
+    timestamp: datetime
+    model_config = ConfigDict(from_attributes=True)

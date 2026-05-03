@@ -39,3 +39,17 @@ class AuthUser(Base):
     is_staff = Column(Integer, default=0)
     is_active = Column(Integer, default=1)
     date_joined = Column(DateTime, default=func.now())
+
+from sqlalchemy import Float
+
+class DetectionSession(Base):
+    __tablename__ = "api_detectionsession"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("auth_user.id"), nullable=True)
+    car_count = Column(Integer, default=0)
+    truck_count = Column(Integer, default=0)
+    bus_count = Column(Integer, default=0)
+    motorcycle_count = Column(Integer, default=0)
+    average_confidence = Column(Float, default=0.0)
+    video_url = Column(String(255), nullable=True)
+    timestamp = Column(DateTime, default=func.now())

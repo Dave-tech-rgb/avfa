@@ -10,17 +10,46 @@ from datetime import datetime
 import models
 import schemas
 import database
+from detector import run_detection  # ← add this
 
 router = APIRouter(prefix="/detection", tags=["detection"])
 
-# Cloudinary will automatically look for the CLOUDINARY_URL environment variable
-# Or you can configure it explicitly using the below variables if they exist
 cloudinary.config(
     cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
     api_key=os.environ.get("CLOUDINARY_API_KEY"),
     api_secret=os.environ.get("CLOUDINARY_API_SECRET")
 )
 
+# ─────────────────────────────────────────────
+# NEW: Run YOLOv8 on an uploaded image/frame
+# ─────────────────────────────────────────────
+@router.post("/detect")
+async def detect(
+    file: UploadFile = File(...),
+    db: Session = Depends(database.get_db)
+):
+    image_bytes = await file.read()
+    result = run_detection(image_bytes)
+
+    # Save each detection box to DetectionLog
+    for det in result["detections"]:
+        log = models.DetectionLog(
+            label=det["class"],
+            confidence=det["confidence"],
+            bbox_x1=det["bbox"][0],
+            bbox_y1=det["bbox"][1],
+            bbox_x2=det["bbox"][2],
+            bbox_y2=det["bbox"][3],
+        )
+        db.add(log)
+    db.commit()
+
+    return result
+
+
+# ─────────────────────────────────────────────
+# EXISTING: Save a completed detection session
+# ─────────────────────────────────────────────
 @router.post("/save", response_model=schemas.DetectionSessionResponse)
 async def save_detection(
     data: str = Form(..., description="JSON string containing counts and confidence"),
@@ -28,7 +57,6 @@ async def save_detection(
     db: Session = Depends(database.get_db)
 ):
     try:
-        # Parse the JSON string from the form data
         parsed_data = json.loads(data)
         detection_data = schemas.DetectionSessionCreate(**parsed_data)
     except Exception as e:
@@ -37,17 +65,14 @@ async def save_detection(
     video_url = None
     if video:
         try:
-            # Upload the video buffer directly to Cloudinary
             upload_result = cloudinary.uploader.upload(
-                video.file, 
+                video.file,
                 resource_type="video",
                 folder="vehicle_detections"
             )
             video_url = upload_result.get("secure_url")
         except Exception as e:
             print(f"Cloudinary upload failed: {e}")
-            # If Cloudinary is not properly configured, we won't crash the request,
-            # but the video_url will remain None.
 
     db_session = models.DetectionSession(
         **detection_data.model_dump(),

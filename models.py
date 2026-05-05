@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, Boolean
 from sqlalchemy.sql import func
 from database import Base
+
 
 class Device(Base):
     __tablename__ = "api_device"
@@ -11,12 +12,14 @@ class Device(Base):
     device_id = Column(String(255))
     created_at = Column(DateTime, default=func.now())
 
+
 class SystemUser(Base):
     __tablename__ = "api_systemuser"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     role = Column(String(20), default="Viewer")
     created_at = Column(DateTime, default=func.now())
+
 
 class AuditLog(Base):
     __tablename__ = "api_auditlog"
@@ -25,6 +28,7 @@ class AuditLog(Base):
     user = Column(String(100))
     role = Column(String(50))
     timestamp = Column(DateTime, default=func.now())
+
 
 class AuthUser(Base):
     __tablename__ = "auth_user"
@@ -40,7 +44,6 @@ class AuthUser(Base):
     is_active = Column(Integer, default=1)
     date_joined = Column(DateTime, default=func.now())
 
-from sqlalchemy import Float
 
 class DetectionSession(Base):
     __tablename__ = "api_detectionsession"
@@ -52,4 +55,19 @@ class DetectionSession(Base):
     motorcycle_count = Column(Integer, default=0)
     average_confidence = Column(Float, default=0.0)
     video_url = Column(String(255), nullable=True)
+    timestamp = Column(DateTime, default=func.now())
+
+
+class DetectionLog(Base):
+    __tablename__ = "api_detectionlog"
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(Integer, ForeignKey("api_detectionsession.id"), nullable=True)
+    device_id = Column(String(255), ForeignKey("api_device.device_id"), nullable=True)
+    label = Column(String(100))           # e.g. "car", "truck", "bus"
+    confidence = Column(Float, default=0.0)
+    bbox_x1 = Column(Float, nullable=True)
+    bbox_y1 = Column(Float, nullable=True)
+    bbox_x2 = Column(Float, nullable=True)
+    bbox_y2 = Column(Float, nullable=True)
+    frame_number = Column(Integer, nullable=True)  # useful for video detections
     timestamp = Column(DateTime, default=func.now())

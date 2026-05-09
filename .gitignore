@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+*.zip
+Philippine-Vehicles-Combined-1/
+models/best.pt

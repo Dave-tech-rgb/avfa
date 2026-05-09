@@ -6,7 +6,7 @@ pydantic
 psycopg2-binary
 cloudinary
 python-multipart
-ultralytics
-opencv-python-headless
+roboflow
+python-dotenv
 pillow
-python-multipart
+ultralytics

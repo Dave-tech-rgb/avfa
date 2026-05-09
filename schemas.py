@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
@@ -13,7 +13,7 @@ class DeviceCreate(DeviceBase):
 
 class Device(DeviceBase):
     id: int
-    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    model_config = {"from_attributes": True, "populate_by_name": True}
 
 class SystemUserBase(BaseModel):
     name: str
@@ -24,7 +24,7 @@ class SystemUserCreate(SystemUserBase):
 
 class SystemUser(SystemUserBase):
     id: int
-    model_config = ConfigDict(from_attributes=True)
+    model_config = {"from_attributes": True}
 
 class AuditLogBase(BaseModel):
     action: str
@@ -38,7 +38,7 @@ class AuditLog(AuditLogBase):
     id: int
     time: str
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = {"from_attributes": True}
 
 class UserLogin(BaseModel):
     email: str
@@ -56,4 +56,4 @@ class DetectionSessionResponse(DetectionSessionCreate):
     id: int
     video_url: Optional[str] = None
     timestamp: datetime
-    model_config = ConfigDict(from_attributes=True)
+    model_config = {"from_attributes": True}

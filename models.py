@@ -9,7 +9,7 @@ class Device(Base):
     name = Column(String(100))
     location = Column(String(100))
     status = Column(String(20), default="Online")
-    device_id = Column(String(255))
+    device_id = Column(String(255), unique=True)
     created_at = Column(DateTime, default=func.now())
 
 

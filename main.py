@@ -4,6 +4,7 @@ import models
 from database import engine, Base
 from routers import auth, devices, users, audit_logs, detection
 
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
